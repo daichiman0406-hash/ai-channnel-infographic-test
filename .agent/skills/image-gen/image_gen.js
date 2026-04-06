@@ -257,6 +257,8 @@ function showHelp() {
  * @returns {string|null} プロンプト文字列
  */
 function getPrompt() {
+  let basePrompt = null;
+
   // --prompt-file が指定されている場合、ファイルから読み込み
   if (args['prompt-file']) {
     const promptFilePath = path.isAbsolute(args['prompt-file'])
@@ -268,12 +270,24 @@ function getPrompt() {
       process.exit(1);
     }
 
-    return fs.readFileSync(promptFilePath, 'utf-8');
+    basePrompt = fs.readFileSync(promptFilePath, 'utf-8');
+  } else if (args.prompt) {
+    // --prompt が指定されている場合、そのまま返す
+    basePrompt = args.prompt;
   }
 
-  // --prompt が指定されている場合、そのまま返す
-  if (args.prompt) {
-    return args.prompt;
+  if (basePrompt) {
+    return `以下の内容に基づいて画像を作成してください。
+
+【内容】
+${basePrompt}
+
+【デザイン要件】
+・付箋ノート、蛍光ペン、付箋を使用した学生ノートのようなデザイン
+・見やすいスッキリした図解
+
+【生成ステップ】
+最後に文字を清書するように再生成してください。文字以外の要素は変更禁止です。`;
   }
 
   return null;
